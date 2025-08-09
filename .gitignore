@@ -6,5 +6,6 @@
 **/*.json
 **/*.png
 mlp/
+venv/
 
 .DS_Store
