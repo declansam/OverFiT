@@ -1,0 +1,10 @@
+**/__pycache__/
+**/*.pyc
+**/data/
+**/*.pth
+**/*.pkl
+**/*.json
+**/*.png
+mlp/
+
+.DS_Store
