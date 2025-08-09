@@ -1,0 +1,32 @@
+# Dataset configuration
+dataset:
+  name: "ogbg-molhiv"   # OGB dataset name
+  root: "data/"         # Root directory for dataset storage
+
+# Model configuration
+model:
+  type: "hybrid"       # gin or hybrid
+  hidden_dim: 256      # Hidden dimension size
+  dropout: 0.2         # Dropout rate
+  num_layers: 5        # Number of layers (for GIN model)
+
+# Training configuration
+training:
+  epochs: 50
+  batch_size: 64
+  lr: 0.001
+  weight_decay: 0.0
+  patience: 10 
+  lr_factor: 0.5
+
+# Prediction configuration
+prediction:
+  threshold: 0.5                            # Threshold for binary classification
+
+# Visualization configuration (path generated automatically)
+visualization:
+  save_plots: true                          # Whether to save training plots
+
+# Demo configuration
+demo:
+  test_indices: [0, 100, 200, 300, 400]     # Molecule indices for demo prediction

@@ -7,5 +7,7 @@
 **/*.png
 mlp/
 venv/
+job_outputs/
+**/*.sbatch
 
 .DS_Store
