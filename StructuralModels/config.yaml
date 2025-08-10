@@ -1,0 +1,82 @@
+# Configuration file for Molecular Property Prediction Models
+
+# General settings
+general:
+  random_seed: 42
+  device: "auto"                  # "auto", "cpu", "cuda"
+  save_plots: true
+  save_models: true
+
+# Dataset settings
+dataset:
+  name: "ogbg-molhiv"             # OGB dataset name
+  root: "data"                    # Root directory for dataset storage
+
+# Directory settings
+paths:
+  data_dir: "data"
+  models_dir: "models"
+  plots_dir: "plots"
+
+# Deep MLP parameters
+training:
+  mlp:
+    epochs: 100
+    batch_size: 256
+    learning_rate: 0.001
+    weight_decay: 0.00001
+    hidden_dims: [512, 256, 128, 64]
+    dropout: 0.3
+    patience: 10
+    lr_reduction_factor: 0.5
+
+# Traditional ML parameters
+traditional_ml:
+  random_forest:
+    n_estimators: 200
+    max_depth: 15
+    min_samples_split: 5
+    min_samples_leaf: 2
+    n_jobs: -1
+  
+  xgboost:
+    n_estimators: 200
+    max_depth: 8
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    eval_metric: "logloss"
+  
+  gradient_boosting:
+    n_estimators: 150
+    max_depth: 6
+    learning_rate: 0.1
+    subsample: 0.8
+  
+  logistic_regression:
+    C: 1.0
+    max_iter: 1000
+
+# Model comparison settings
+comparison:
+  quick_epochs:
+    mlp: 10
+    traditional_ml: null                # Uses all data
+
+# Evaluation settings
+evaluation:
+  metrics: ["roc_auc"]
+  cross_validation_folds: 5
+  test_threshold: 0.5
+
+# Visualization settings
+visualization:
+  figure_size: [12, 4]
+  dpi: 300
+  style: "seaborn"
+  color_palette: ["#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
+  save_format: "png"
+
+# Demo configuration (moledule indices)
+demo:
+  test_indices: [0, 100, 200, 300, 400]
