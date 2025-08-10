@@ -38,7 +38,9 @@ export async function POST(request: NextRequest) {
       smiles: data.smiles,
       prediction: data.prediction,
       probability: data.probability,
-      confidence: data.confidence,
+      effectiveness_score: data.effectiveness_score,
+      category: data.category,
+      descriptors: data.descriptors,
       error: data.error,
     });
   } catch (error) {

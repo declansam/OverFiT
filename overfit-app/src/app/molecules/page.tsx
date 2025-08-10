@@ -390,40 +390,30 @@ export default function MoleculesPage() {
                               : "HIV INACTIVE"}
                           </div>
                           <div className="text-sm text-gray-300">
-                            Confidence:{" "}
+                            Probability:{" "}
                             {(predictionResult.probability * 100).toFixed(1)}%
                           </div>
                         </div>
-                        {predictionResult.descriptors && (
-                          <div className="flex gap-6 text-xs">
+                        <div className="flex gap-6 text-xs">
+                          {predictionResult.effectiveness_score && (
                             <div className="text-center">
                               <div className="font-semibold text-blue-400">
-                                {predictionResult.descriptors.tpsa?.toFixed(
+                                {predictionResult.effectiveness_score.toFixed(
                                   1
-                                ) || "N/A"}
+                                )}
                               </div>
-                              <div className="text-gray-400">TPSA</div>
+                              <div className="text-gray-400">Effectiveness</div>
                             </div>
-                            <div className="text-center">
-                              <div className="font-semibold text-green-400">
-                                {predictionResult.descriptors.aromatic_rings ||
-                                  "N/A"}
-                              </div>
-                              <div className="text-gray-400">
-                                Aromatic Rings
-                              </div>
-                            </div>
+                          )}
+                          {predictionResult.category && (
                             <div className="text-center">
                               <div className="font-semibold text-purple-400">
-                                {predictionResult.descriptors.rotatable_bonds ||
-                                  "N/A"}
+                                {predictionResult.category}
                               </div>
-                              <div className="text-gray-400">
-                                Rotatable Bonds
-                              </div>
+                              <div className="text-gray-400">Category</div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}

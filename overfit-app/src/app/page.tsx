@@ -122,11 +122,20 @@ export default function Home() {
       const result = await response.json();
 
       if (response.ok) {
-        // Show prediction result
+        // Show enhanced prediction result
         const activity = result.prediction === 1 ? "Active" : "Inactive";
-        const confidence = (result.probability * 100).toFixed(1);
+        const probability = (result.probability * 100).toFixed(1);
+        const effectiveness = result.effectiveness_score
+          ? result.effectiveness_score.toFixed(1)
+          : "N/A";
+        const category = result.category || "Unknown";
+
         alert(
-          `HIV Inhibition Prediction:\n${activity} (${confidence}% confidence)`
+          `HIV Inhibition Prediction:\n` +
+            `Activity: ${activity}\n` +
+            `Probability: ${probability}%\n` +
+            `Effectiveness Score: ${effectiveness}/100\n` +
+            `Category: ${category}`
         );
       } else {
         alert(result.error || "Failed to predict HIV inhibition");
@@ -147,7 +156,7 @@ export default function Home() {
           <div className="flex items-center justify-center gap-4">
             <FlaskIcon />
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              OverFiT
+              beeHIVe
             </h1>
           </div>
           <div className="flex items-center gap-8">

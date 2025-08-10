@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OverFiT - Molecular Generation & Analysis Platform",
-  description: "Advanced molecular generation using GraphVAE and HIV inhibition prediction using machine learning. Generate drug-like molecules and predict their activity with state-of-the-art AI models.",
+  title: "beeHIVe - Molecular Generation & Analysis Platform",
+  description:
+    "Advanced molecular generation using GraphVAE and HIV inhibition prediction using machine learning. Generate drug-like molecules and predict their activity with state-of-the-art AI models.",
 };
 
 export default function RootLayout({
