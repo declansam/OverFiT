@@ -1,4 +1,4 @@
-# OverFiT FastAPI Backend
+# beeHIVe FastAPI Backend
 
 A FastAPI backend for molecular generation, visualization, and HIV activity prediction.
 
@@ -14,7 +14,7 @@ A FastAPI backend for molecular generation, visualization, and HIV activity pred
 1. **Clone the repository** (if not already done):
 
    ```bash
-   cd /Users/hydrogen/Desktop/OverFiT
+   cd /Users/hydrogen/Desktop/beeHIVe
    ```
 
 2. **Create a virtual environment**:
@@ -112,7 +112,7 @@ The API will be available at `http://localhost:8000`
 
 ## Integration with Next.js Frontend
 
-The FastAPI backend is designed to work with the existing Next.js frontend. The API endpoints mirror the structure expected by the frontend routes in `overfit-app/src/app/api/`.
+The FastAPI backend is designed to work with the existing Next.js frontend. The API endpoints mirror the structure expected by the frontend routes in `beeHIVe-app/src/app/api/`.
 
 ### CORS Configuration
 
@@ -191,4 +191,4 @@ For production deployment, consider:
 
 ## License
 
-This project follows the same license as the main OverFiT repository.
+This project follows the same license as the main beeHIVe repository.

@@ -65,10 +65,12 @@ def main(smiles_string=None):
 
     test_smile = active_molecule['smiles']
     print(active_molecule['HIV_active'])
+    
+    # Use provided SMILES string if available, otherwise use the default active molecule
+    if smiles_string:
+        test_smile = smiles_string.strip()
+    
     print(f"\nConverting SMILES string to graph: {test_smile}")
-
-    if not smiles_string:
-        test_smile = smiles_string
     
     try:
         molecule_graph = from_smiles(test_smile)
@@ -83,7 +85,7 @@ def main(smiles_string=None):
         print("="*50)
         print(f"  Predicted to be HIV Active: {result['is_hiv_active']}")
         print(f"  Confidence Probability:     {result['probability']:.4f}")
-        print(f"  Effectiveness Score:        {result['effectiveness_score']:.2f} / 100")
+        print(f"  Effectiveness Score:        {result['effectiveness_score']:.2f}")
         print(f"  Effectiveness Category:     '{result['category']}'")
         print("="*50)
 

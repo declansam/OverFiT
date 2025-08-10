@@ -41,7 +41,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning, module='rdkit')
 warnings.filterwarnings('ignore', message='.*DEPRECATION WARNING.*MorganGenerator.*')
 
 class EarlyStopping:
-    """Early stopping to prevent overfitting."""
+    """Early stopping to prevent beeHIVeting."""
     
     def __init__(self, patience: int = 10, min_delta: float = 0.001, restore_best_weights: bool = True):
         self.patience = patience

@@ -1,5 +1,5 @@
 """
-FastAPI Backend for OverFiT Molecular Applications
+FastAPI Backend for beeHIVe Molecular Applications
 Provides endpoints for molecule generation, visualization, and HIV prediction
 """
 
@@ -19,7 +19,7 @@ project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
 app = FastAPI(
-    title="OverFiT Molecular API",
+    title="beeHIVe Molecular API",
     description="FastAPI backend for molecule generation, visualization, and prediction",
     version="1.0.0"
 )
@@ -82,9 +82,11 @@ class PredictHIVRequest(BaseModel):
 class PredictHIVResponse(BaseModel):
     success: bool
     smiles: str
-    prediction: Optional[float] = None
-    probability: Optional[float] = None
-    confidence: Optional[float] = None
+    prediction: Optional[int] = None  # Binary prediction (0 or 1)
+    probability: Optional[float] = None  # Raw probability score
+    effectiveness_score: Optional[float] = None  # Effectiveness score (0-100)
+    category: Optional[str] = None  # Effectiveness category
+    descriptors: Optional[Dict[str, Any]] = None  # Additional molecular descriptors
     error: Optional[str] = None
 
 class MoleculeInfo(BaseModel):
@@ -102,7 +104,7 @@ class GetMoleculesResponse(BaseModel):
 async def root():
     """Root endpoint with API information"""
     return {
-        "message": "OverFiT Molecular API",
+        "message": "beeHIVe Molecular API",
         "version": "1.0.0",
                 "endpoints": {
             "generate_molecules": "/api/generate-molecules",
@@ -363,30 +365,36 @@ async def generate_3d_molecule(request: Generate3DMoleculeRequest):
 
 @app.post("/api/predict-hiv", response_model=PredictHIVResponse)
 async def predict_hiv(request: PredictHIVRequest):
-    """Predict HIV activity for a molecule"""
+    """Predict HIV activity for a molecule using the predict.py script"""
     try:
-        # Create a temporary script to run HIV prediction
+        # Path to the predict.py script
+        predict_script_path = project_root / "predict.py"
+        
+        if not predict_script_path.exists():
+            raise HTTPException(
+                status_code=404, 
+                detail="Prediction script not found"
+            )
+        
+        # Create a temporary script to call predict.py with the SMILES
         temp_script_content = f"""
 import sys
+import os
 sys.path.append('{project_root}')
-sys.path.append('{project_root / "Complete"}')
 
-import torch
-from Complete.main import StackedModel
+# Change to project root directory
+os.chdir('{project_root}')
 
-# Initialize and load model
-model = StackedModel()
 try:
-    model.load_models()
-    model.eval()
+    from predict import main
+    result = main('{request.smiles}')
     
-    # Make prediction
-    with torch.no_grad():
-        prediction = model.predict('{request.smiles}')
-        prob = float(prediction.item())
+    if result:
+        print(f"SUCCESS: {{result}}")
+    else:
+        print("ERROR: No result returned")
+        exit(1)
         
-    print(f"PREDICTION: {prob}")
-    
 except Exception as e:
     print(f"ERROR: {{str(e)}}")
     exit(1)
@@ -404,7 +412,7 @@ except Exception as e:
                 capture_output=True,
                 text=True,
                 cwd=project_root,
-                timeout=60  # 1 minute timeout
+                timeout=120  # 2 minute timeout for model loading
             )
             
             if result.returncode != 0:
@@ -415,26 +423,32 @@ except Exception as e:
                     error=f"Prediction failed: {error_msg}"
                 )
             
-            # Parse result
+            # Parse result from output
             output_lines = result.stdout.strip().split('\n')
-            prediction_value = None
+            result_data = None
             
             for line in output_lines:
-                if line.startswith("PREDICTION:"):
-                    prediction_value = float(line.replace("PREDICTION: ", ""))
-                    break
+                if line.startswith("SUCCESS: "):
+                    try:
+                        # Extract the dictionary string and parse it
+                        result_str = line.replace("SUCCESS: ", "")
+                        result_data = eval(result_str)  # Safe because we control the output format
+                        break
+                    except Exception as e:
+                        print(f"Error parsing result: {e}")
+                        continue
             
-            if prediction_value is not None:
-                # Convert probability to binary prediction
-                binary_prediction = 1 if prediction_value > 0.5 else 0
-                confidence = abs(prediction_value - 0.5) * 2
+            if result_data and isinstance(result_data, dict):
+                # Convert boolean to int for prediction
+                prediction = 1 if result_data.get('is_hiv_active', False) else 0
                 
                 return PredictHIVResponse(
                     success=True,
                     smiles=request.smiles,
-                    prediction=binary_prediction,
-                    probability=prediction_value,
-                    confidence=confidence
+                    prediction=prediction,
+                    probability=result_data.get('probability', 0.0),
+                    effectiveness_score=result_data.get('effectiveness_score', 0.0),
+                    category=result_data.get('category', 'Unknown')
                 )
             else:
                 return PredictHIVResponse(
@@ -445,7 +459,8 @@ except Exception as e:
                 
         finally:
             # Clean up temporary file
-            os.unlink(temp_script_path)
+            if os.path.exists(temp_script_path):
+                os.unlink(temp_script_path)
             
     except subprocess.TimeoutExpired:
         return PredictHIVResponse(

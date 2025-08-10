@@ -124,7 +124,7 @@ export default function Home() {
       if (response.ok) {
         // Show enhanced prediction result
         const activity = result.prediction === 1 ? "Active" : "Inactive";
-        const probability = (result.probability * 100).toFixed(1);
+        const probability = result.probability.toFixed(1);
         const effectiveness = result.effectiveness_score
           ? result.effectiveness_score.toFixed(1)
           : "N/A";
@@ -133,8 +133,8 @@ export default function Home() {
         alert(
           `HIV Inhibition Prediction:\n` +
             `Activity: ${activity}\n` +
-            `Probability: ${probability}%\n` +
-            `Effectiveness Score: ${effectiveness}/100\n` +
+            `Probability: ${probability}\n` +
+            `Effectiveness Score: ${effectiveness}\n` +
             `Category: ${category}`
         );
       } else {
