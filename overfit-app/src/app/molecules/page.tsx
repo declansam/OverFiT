@@ -93,6 +93,22 @@ export default function MoleculesPage() {
   const [predictionResult, setPredictionResult] = useState<any>(null);
   const router = useRouter();
 
+  // Handle cleanup on page navigation
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Clear any pending states that might cause issues
+      setSelectedMolecule(null);
+      setMoleculeImage(null);
+      setPredictionResult(null);
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
   useEffect(() => {
     loadMolecules();
   }, []);
@@ -215,7 +231,16 @@ export default function MoleculesPage() {
           <p className="text-gray-300 text-base mb-6">
             No molecules generated yet.
           </p>
-          <button onClick={() => router.push("/")} className="btn-primary">
+          <button
+            onClick={() => {
+              // Clear states before navigation
+              setSelectedMolecule(null);
+              setMoleculeImage(null);
+              setPredictionResult(null);
+              router.push("/");
+            }}
+            className="btn-primary"
+          >
             Generate Molecules
           </button>
         </div>
@@ -230,7 +255,13 @@ export default function MoleculesPage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
             <button
-              onClick={() => router.push("/")}
+              onClick={() => {
+                // Clear molecule viewer state before navigation
+                setSelectedMolecule(null);
+                setMoleculeImage(null);
+                setPredictionResult(null);
+                router.push("/");
+              }}
               className="btn-secondary p-4"
             >
               <ArrowLeftIcon />

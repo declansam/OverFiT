@@ -311,7 +311,13 @@ export default function Molecule3DViewer({
 
     // Clean up previous viewer
     if (viewerInstance.current) {
-      viewerInstance.current.clear();
+      try {
+        viewerInstance.current.clear();
+        viewerInstance.current = null;
+      } catch (error) {
+        console.warn("Error during previous viewer cleanup:", error);
+        viewerInstance.current = null;
+      }
     }
 
     try {
@@ -373,11 +379,50 @@ export default function Molecule3DViewer({
     currentStyle,
   ]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount and navigation events
   useEffect(() => {
-    return () => {
+    const handleBeforeUnload = () => {
       if (viewerInstance.current) {
-        viewerInstance.current.clear();
+        try {
+          viewerInstance.current.clear();
+          viewerInstance.current = null;
+        } catch (error) {
+          console.warn("Error during viewer cleanup:", error);
+        }
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && viewerInstance.current) {
+        try {
+          viewerInstance.current.clear();
+          viewerInstance.current = null;
+        } catch (error) {
+          console.warn(
+            "Error during viewer cleanup on visibility change:",
+            error
+          );
+        }
+      }
+    };
+
+    // Listen for page unload and visibility changes
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      // Clean up event listeners
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      // Clean up viewer
+      if (viewerInstance.current) {
+        try {
+          viewerInstance.current.clear();
+          viewerInstance.current = null;
+        } catch (error) {
+          console.warn("Error during viewer cleanup:", error);
+        }
       }
     };
   }, []);
