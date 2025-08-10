@@ -14,14 +14,6 @@ from tqdm import tqdm
 import warnings
 warnings.filterwarnings('ignore')
 
-# Import compatibility fix
-try:
-    from fix_pytorch_compatibility import setup_pytorch_compatibility
-    setup_pytorch_compatibility()
-except ImportError:
-    print("Compatibility fix not found, using fallback method")
-
-
 class GraphVAE(torch.nn.Module):
     """GraphVAE that focuses on stability"""
     

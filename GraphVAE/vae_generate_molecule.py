@@ -4,11 +4,10 @@ Works with the VAE model
 """
 
 import torch
-import torch.nn.functional as F
 import numpy as np
 import pandas as pd
 from rdkit import Chem
-from rdkit.Chem import Descriptors, Draw
+from rdkit.Chem import Draw
 from rdkit.Chem.Descriptors import ExactMolWt, MolLogP, NumHDonors, NumHAcceptors, TPSA
 from rdkit.Chem.Lipinski import NumRotatableBonds
 from rdkit.Chem import rdMolDescriptors
@@ -210,13 +209,6 @@ def analyze_molecules(molecules):
 
 def main():
     print("Starting molecule generation...")
-    
-    # Import compatibility fix
-    try:
-        from fix_pytorch_compatibility import setup_pytorch_compatibility
-        setup_pytorch_compatibility()
-    except ImportError:
-        pass
     
     # Find model
     model_path = None

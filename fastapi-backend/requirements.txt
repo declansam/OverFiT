@@ -1,0 +1,24 @@
+# FastAPI and related dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+python-multipart==0.0.6
+
+# Machine Learning and Chemistry
+torch>=2.0.0
+rdkit>=2023.3.1
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+
+# Data visualization and processing
+matplotlib>=3.7.0
+seaborn>=0.12.0
+tqdm>=4.65.0
+
+# Graph neural networks (if needed)
+torch-geometric>=2.4.0
+
+# Additional utilities
+python-dotenv>=1.0.0
+pathlib2>=2.3.7

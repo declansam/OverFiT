@@ -2,7 +2,6 @@
 **/*.pyc
 **/data/
 **/*.pkl
-**/*.json
 mlp/
 venv/
 job_outputs/
