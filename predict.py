@@ -21,7 +21,7 @@ print(f"Using device: {device}")
 # PREDICTION FUNCTION
 # ==============================================================================
 
-def predict_on_new_graph(model, graph_data, device, threshold=0.5):
+def predict_on_new_graph(model, graph_data, device, threshold=0.3):
     """Predicts HIV activity for a single, new graph data object."""
     model.eval()
     with torch.no_grad():
@@ -29,8 +29,8 @@ def predict_on_new_graph(model, graph_data, device, threshold=0.5):
         batch_vector = torch.zeros(graph_data.num_nodes, dtype=torch.long, device=device)
         out = model(graph_data.x, graph_data.edge_index, batch_vector)
         prob = torch.sigmoid(out).item()
-        prediction = 1 if prob > threshold else 0
         effectiveness_score = prob * 100
+        prediction = 1 if effectiveness_score > threshold else 0
         category = "Highly Effective" if effectiveness_score >= 80 else "Moderately Effective" if effectiveness_score >= 60 else "Weakly Effective"
     return {'is_hiv_active': bool(prediction), 'probability': prob, 'effectiveness_score': effectiveness_score, 'category': category}
 

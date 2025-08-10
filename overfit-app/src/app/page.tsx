@@ -124,18 +124,14 @@ export default function Home() {
       if (response.ok) {
         // Show enhanced prediction result
         const activity = result.prediction === 1 ? "Active" : "Inactive";
-        const probability = result.probability.toFixed(1);
         const effectiveness = result.effectiveness_score
-          ? result.effectiveness_score.toFixed(1)
+          ? result.effectiveness_score.toFixed(3)
           : "N/A";
-        const category = result.category || "Unknown";
 
         alert(
           `HIV Inhibition Prediction:\n` +
             `Activity: ${activity}\n` +
-            `Probability: ${probability}\n` +
-            `Effectiveness Score: ${effectiveness}\n` +
-            `Category: ${category}`
+            `Effectiveness Score: ${effectiveness}\n`
         );
       } else {
         alert(result.error || "Failed to predict HIV inhibition");
@@ -286,13 +282,13 @@ export default function Home() {
                           type="text"
                           value={smiles}
                           onChange={(e) => setSmiles(e.target.value)}
-                          placeholder="e.g., CCCCCCCCCc1ccc(C(=O)O)cc1"
+                          placeholder="e.g., CCO"
                           className="input-glass"
                         />
                       </div>
 
                       <div className="text-sm text-gray-400">
-                        Example: CC(C)CC1=CC=C(C=C1)C(C)C(=O)O (Ibuprofen)
+                        Example: CCO (Ethanol)
                       </div>
                     </div>
 

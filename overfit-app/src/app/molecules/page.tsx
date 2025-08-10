@@ -389,28 +389,16 @@ export default function MoleculesPage() {
                               ? "HIV ACTIVE"
                               : "HIV INACTIVE"}
                           </div>
-                          <div className="text-sm text-gray-300">
-                            Probability:{" "}
-                            {(predictionResult.probability * 100).toFixed(1)}%
-                          </div>
                         </div>
                         <div className="flex gap-6 text-xs">
                           {predictionResult.effectiveness_score && (
                             <div className="text-center">
                               <div className="font-semibold text-blue-400">
                                 {predictionResult.effectiveness_score.toFixed(
-                                  1
+                                  3
                                 )}
                               </div>
                               <div className="text-gray-400">Effectiveness</div>
-                            </div>
-                          )}
-                          {predictionResult.category && (
-                            <div className="text-center">
-                              <div className="font-semibold text-purple-400">
-                                {predictionResult.category}
-                              </div>
-                              <div className="text-gray-400">Category</div>
                             </div>
                           )}
                         </div>
