@@ -25,7 +25,9 @@ def train_epoch(model, device, loader, optimizer, criterion):
         optimizer.zero_grad()
 
         out = model(batch.x, batch.edge_index, batch.batch)
-        loss = criterion(out, batch.y.float())
+        # Reshape target to match output dimensions and ensure it's on the same device
+        target = batch.y.float().view(-1, 1).to(device)
+        loss = criterion(out, target)
 
         loss.backward()
         optimizer.step()
@@ -56,6 +58,12 @@ def evaluate(model, device, loader, evaluator):
 
     y_true = torch.cat(y_true, dim=0).numpy()
     y_pred = torch.cat(y_pred, dim=0).numpy()
+    
+    # Ensure both arrays have the same shape for the evaluator
+    if y_true.ndim == 1 and y_pred.ndim == 2:
+        y_true = y_true.reshape(-1, 1)
+    elif y_true.ndim == 2 and y_pred.ndim == 1:
+        y_pred = y_pred.reshape(-1, 1)
 
     # Calculate ROC-AUC
     input_dict = {"y_true": y_true, "y_pred": y_pred}
@@ -82,7 +90,12 @@ def train_model(model, train_loader, valid_loader, test_loader, device, config):
     print(f"Total parameters: {sum(p.numel() for p in model.parameters())}")
 
     # Loss and optimizer
-    criterion = nn.BCEWithLogitsLoss()
+    _, temp_y = zip(*train_loader.dataset.smiles_data)
+    num_pos = sum(y == 1 for y in temp_y)
+    num_neg = len(temp_y) - num_pos
+
+    pos_weight = torch.tensor([num_neg / num_pos]).to(device)
+    criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode='max', factor=lr_factor, patience=patience, verbose=True
