@@ -2,6 +2,15 @@
 Training script for MLP classification on ogb-molhiv dataset.
 """
 
+# Suppress RDKit warnings at the C++ level - must be set before any RDKit imports
+import os
+os.environ['RDKIT_LOG_LEVEL'] = 'ERROR'
+
+# Additional stderr redirection for RDKit warnings
+import sys
+from contextlib import redirect_stderr
+from io import StringIO
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,7 +19,6 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 import matplotlib.pyplot as plt
-import seaborn as sns
 from ogb.graphproppred import Evaluator
 import os
 import argparse
@@ -19,10 +27,18 @@ import time
 from tqdm import tqdm
 
 from data_loader import prepare_data_loaders
-from model import create_mlp_model
+from models import create_mlp_model
+
+# Additional RDKit warning suppression
+try:
+    from rdkit import RDLogger
+    RDLogger.DisableLog('rdApp.*')
+except ImportError:
+    pass
 
 import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='rdkit')
+warnings.filterwarnings('ignore', message='.*DEPRECATION WARNING.*MorganGenerator.*')
 
 class EarlyStopping:
     """Early stopping to prevent overfitting."""
@@ -361,7 +377,7 @@ def train_mlp(config: Dict) -> nn.Module:
     plot_training_curves(train_losses, val_losses, train_metrics, val_metrics)
     
     # Save model
-    model_path = os.path.join("mlp", f"best_mlp_model_{config['model_type']}.pth")
+    model_path = os.path.join("models", f"best_mlp_model_{config['model_type']}.pth")
     torch.save({
         'model_state_dict': model.state_dict(),
         'config': config,
@@ -409,7 +425,7 @@ def main():
     config = vars(args)
     
     # Create output directory
-    os.makedirs("mlp", exist_ok=True)
+    os.makedirs("models", exist_ok=True)
     
     # Set default flags
     config['include_descriptors'] = True

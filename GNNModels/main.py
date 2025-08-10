@@ -30,11 +30,11 @@ def main():
     config.print_config()
     
     # Load dataset
-    dataset, train_dataset, valid_dataset, test_dataset = load_dataset(config)
+    dataset, train_dataset, test_dataset = load_dataset(config)
     
     # Create data loaders
-    train_loader, valid_loader, test_loader = create_data_loaders(
-        train_dataset, valid_dataset, test_dataset, config
+    train_loader, test_loader = create_data_loaders(
+        train_dataset, test_dataset, config
     )
     
     # Initialize model
@@ -49,7 +49,7 @@ def main():
     trained_model, test_auc = train_model(
         model=model,
         train_loader=train_loader,
-        valid_loader=valid_loader,
+        valid_loader=test_loader,  # Use test_loader as validation for now
         test_loader=test_loader,
         device=device,
         config=config

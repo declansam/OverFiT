@@ -2,6 +2,10 @@
 Data loading and feature extraction for ogb-molhiv dataset using SMILES and molecular fingerprints.
 """
 
+# Suppress RDKit warnings at the C++ level - must be set before any RDKit imports
+import os
+os.environ['RDKIT_LOG_LEVEL'] = 'ERROR'
+
 import numpy as np
 import pandas as pd
 import torch
@@ -10,11 +14,17 @@ from sklearn.preprocessing import StandardScaler
 from ogb.graphproppred import PygGraphPropPredDataset
 from rdkit import Chem
 from rdkit.Chem import Descriptors, rdMolDescriptors, Crippen, Lipinski
+from rdkit import RDLogger
+
+# Disable RDKit warnings and info messages
+RDLogger.DisableLog('rdApp.*')
 import pickle
 import os
 from typing import Tuple, Dict, Any, Optional
 import warnings
-warnings.filterwarnings('ignore')
+# Specifically suppress the MorganGenerator deprecation warning
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='rdkit')
+warnings.filterwarnings('ignore', message='.*DEPRECATION WARNING.*MorganGenerator.*')
 
 class MolecularFeaturesDataset(Dataset):
     """Dataset class for molecular features extracted from SMILES."""
@@ -39,7 +49,7 @@ class MolecularFeaturesDataset(Dataset):
 
 def smiles_to_morgan_fingerprint(smiles: str, radius: int = 3, n_bits: int = 2048) -> np.ndarray:
     """
-    Convert SMILES string to Morgan fingerprint.
+    Convert SMILES string to Morgan fingerprint using the modern RDKit API.
     
     Args:
         smiles: SMILES string representation of molecule
@@ -54,23 +64,13 @@ def smiles_to_morgan_fingerprint(smiles: str, radius: int = 3, n_bits: int = 204
         if mol is None:
             return np.zeros(n_bits)
         
-        # Generate Morgan fingerprint using modern RDKit API
-        try:
-            # Use the new MorganGenerator (RDKit 2023.09+)
-            from rdkit.Chem.rdMolDescriptors import GetMorganGenerator
-            morgan_gen = GetMorganGenerator(radius=radius, fpSize=n_bits)
-            fp = morgan_gen.GetFingerprintAsNumPy(mol)
-            return fp
-        except (ImportError, AttributeError):
-            # Fallback to older API if MorganGenerator is not available
-            # Suppress the deprecation warning since we already tried the new API
-            import warnings
-            with warnings.catch_warnings():
-                warnings.filterwarnings('ignore', category=DeprecationWarning)
-                fp = rdMolDescriptors.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits)
-            return np.array(fp)
+        # Use the new MorganGenerator (RDKit 2023.09+)
+        from rdkit.Chem.rdMolDescriptors import GetMorganGenerator
+        morgan_gen = GetMorganGenerator(radius=radius, fpSize=n_bits)
+        fp = morgan_gen.GetFingerprintAsNumPy(mol)
+        return fp
         
-    except:
+    except Exception:
         return np.zeros(n_bits)
 
 
