@@ -4,7 +4,7 @@ import torch.nn as nn
 
 from GNNModels.models import GINConvNet
 from MorganFingerprintMLP.models import MLP as MorganFingerprintMLP
-from StructuralModels.models import StructureMLP
+from StructuralModels.models import TraditionalMLEnsemble, DeepMLP
 from Inference.gnn_predict import smiles_to_pyg_data
 
 def smiles_to_graph(smiles):
@@ -16,7 +16,8 @@ class StackedModel(nn.Module):
 
         self.gnn_model = GINConvNet()
         self.morgan_mlp = MorganFingerprintMLP()
-        self.structure_mlp = StructureMLP()
+        self.traditional_ensemble = TraditionalMLEnsemble()
+        self.deep_mlp = DeepMLP()
 
         self.meta_classifier = nn.Sequential(
             nn.Linear(3, 64),
@@ -25,7 +26,7 @@ class StackedModel(nn.Module):
             nn.Sigmoid()
         )
         
-    def forward(self, smiles):
+    def forward(self, smiles, model_type: str = "deep"):
 
         graph = smiles_to_graph(smiles)
 
@@ -33,20 +34,30 @@ class StackedModel(nn.Module):
 
             morgan_pred = self.morgan_mlp(smiles)
             gnn_pred = self.gnn_model(graph)
-            structure_pred = self.structure_mlp(smiles)
+
+            if model_type == "traditional":
+                structure_pred = self.traditional_ensemble(smiles)
+
+            else:
+                structure_pred = self.deep_mlp(smiles)
 
         individual_preds = torch.stack([gnn_pred, morgan_pred, structure_pred], dim=1)
         meta_pred = self.meta_classifier(individual_preds)
         return meta_pred
 
     @torch.no_grad()
-    def predict(self, smiles):
+    def predict(self, smiles, model_type: str = "deep"):
 
         morgan_pred = self.morgan_mlp(smiles)
 
         graph = smiles_to_graph(smiles)
         gnn_pred = self.gnn_model(graph)
-        structure_pred = self.structure_mlp(smiles)
+
+        if model_type == "traditional":
+            structure_pred = self.traditional_ensemble(smiles)
+
+        else:
+            structure_pred = self.deep_mlp(smiles)
 
         individual_preds = torch.stack([gnn_pred, morgan_pred, structure_pred], dim=1)
         meta_pred = self.meta_classifier(individual_preds)
