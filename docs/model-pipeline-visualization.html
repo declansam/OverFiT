@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molecular Ensemble Pipeline</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .pipeline {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+            gap: 15px;
+        }
+        
+        .stage {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .stage-1 { background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; }
+        .stage-2 { background: linear-gradient(45deg, #4834d4, #686de0); color: white; }
+        .stage-3 { background: linear-gradient(45deg, #00d2d3, #01a3a4); color: white; }
+        .stage-4 { background: linear-gradient(45deg, #ff9ff3, #f368e0); color: white; }
+        .stage-5 { background: linear-gradient(45deg, #54a0ff, #2e86de); color: white; }
+        
+        .stage-content {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .stage-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .models {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .model {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            flex: 1;
+            backdrop-filter: blur(10px);
+        }
+        
+        .model-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1em;
+        }
+        
+        .arrow {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid rgba(255, 255, 255, 0.8);
+            z-index: 10;
+        }
+        
+        .stage:last-child .arrow { display: none; }
+        
+        .meta-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.2em;
+        }
+        
+        .prediction-box {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            min-width: 80px;
+        }
+        
+        .combine {
+            font-size: 2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="pipeline">
+        <!-- Stage 1: Input -->
+        <div class="stage stage-1">
+            <div class="stage-content">
+                <div class="stage-title">1. INPUT</div>
+                <div class="flow">
+                    <span>SMILES String</span>
+                    <span>→</span>
+                    <span>Graph Data</span>
+                    <span>→</span>
+                    <span>Morgan Features</span>
+                    <span>→</span>
+                    <span>Structural Features</span>
+                </div>
+            </div>
+            <div class="arrow"></div>
+        </div>
+
+        <!-- Stage 2: Individual Models -->
+        <div class="stage stage-2">
+            <div class="stage-content">
+                <div class="stage-title">2. PARALLEL MODELS</div>
+                <div class="models">
+                    <div class="model">
+                        <div class="model-name">GNN</div>
+                        <div>Graph Neural Network</div>
+                        <div>(GINConvNet)</div>
+                    </div>
+                    <div class="model">
+                        <div class="model-name">Morgan MLP</div>
+                        <div>Fingerprint Features</div>
+                        <div>(2072 → 1)</div>
+                    </div>
+                    <div class="model">
+                        <div class="model-name">Structural</div>
+                        <div>Traditional/Deep MLP</div>
+                        <div>(64 → 1)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="arrow"></div>
+        </div>
+
+        <!-- Stage 3: Predictions -->
+        <div class="stage stage-3">
+            <div class="stage-content">
+                <div class="stage-title">3. INDIVIDUAL PREDICTIONS</div>
+                <div class="meta-flow">
+                    <div class="prediction-box">GNN Pred</div>
+                    <div class="prediction-box">Morgan Pred</div>
+                    <div class="prediction-box">Structure Pred</div>
+                </div>
+            </div>
+            <div class="arrow"></div>
+        </div>
+
+        <!-- Stage 4: Meta Classifier -->
+        <div class="stage stage-4">
+            <div class="stage-content">
+                <div class="stage-title">4. META CLASSIFIER</div>
+                <div class="meta-flow">
+                    <span>[3 Predictions]</span>
+                    <span class="combine">→</span>
+                    <span>Linear(3→64)</span>
+                    <span>→</span>
+                    <span>ReLU</span>
+                    <span>→</span>
+                    <span>Linear(64→1)</span>
+                    <span>→</span>
+                    <span>Sigmoid</span>
+                </div>
+            </div>
+            <div class="arrow"></div>
+        </div>
+
+        <!-- Stage 5: Output -->
+        <div class="stage stage-5">
+            <div class="stage-content">
+                <div class="stage-title">5. FINAL PREDICTION</div>
+                <div class="flow" style="justify-content: center;">
+                    <span style="font-size: 2em;">Binary Probability [0, 1]</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
